@@ -1,17 +1,15 @@
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ['babel-preset-expo'],  // Changed from metro-react-native-babel-preset
+    presets: ['babel-preset-expo'],
     plugins: [
-      // Required: Add the proper lodash plugin
-      ['babel-plugin-lodash'],
+      // Keep these if you're actually using them
+      ['babel-plugin-lodash'], // Only if using lodash
+      'react-native-reanimated/plugin', // Only if using Reanimated
+      ['@babel/plugin-proposal-decorators', { legacy: true }], // Only if using decorators
       
-      // Optional: For Reanimated (if used)
-      'react-native-reanimated/plugin',
-
-      // Optional: For class properties or decorators (if needed)
-      ['@babel/plugin-proposal-decorators', { legacy: true }],
-      ['@babel/plugin-proposal-class-properties', { loose: true }],
+      // Add this single instance of the class properties plugin
+      ['@babel/plugin-proposal-class-properties', { loose: true }]
     ],
   };
 };
