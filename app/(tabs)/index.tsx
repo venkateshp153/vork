@@ -1,75 +1,101 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+// app/(tabs)/index.tsx - Home tab screen
+import TimesheetCard from '@/components/TimesheetCard';
+import TimesheetSummary from '@/components/TimesheetSummary';
+import { useEffect } from 'react';
+import { BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useAppSelector } from '../../redux/hooks';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+interface TimesheetEntry {
+  id: string;
+  date: string;
+  inTime: string;
+  outTime: string;
+  totalHours: string;
 }
+export default function HomeScreen() {
+  const { isAuthenticated,user} = useAppSelector(state => state.auth)
+  useEffect(() => {
+    console.log("------>",user)
+    if (isAuthenticated) {
+      const backAction = () => {
+        BackHandler.exitApp() // Exit the app
+        return true // Prevent default back behavior
+      }
+
+      // Add event listener for hardware back press
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction
+      )
+
+      // Cleanup on unmount
+      return () => backHandler.remove()
+    }
+  }, [isAuthenticated])
+  const timesheetData: TimesheetEntry[] = [
+    {
+      id: '1',
+      date: 'July 16th, 2022',
+      inTime: '09:00 AM',
+      outTime: '05:10 PM',
+      totalHours: '08:10 total hrs',
+    },
+    {
+      id: '2',
+      date: 'July 15th, 2022',
+      inTime: '08:00 AM',
+      outTime: '04:00 PM',
+      totalHours: '08:00 total Hrs',
+    },
+    // Add more entries as needed
+  ];
+
+  return (
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.greeting}>Good morning Bagus</Text>
+        <Text style={styles.motivation}>Let's get to work!</Text>
+        
+        <TimesheetSummary
+          todayHours="00:00Hrs"
+          periodHours="45:56Hrs"
+          payPeriod="Jul 01st - 31st, 2022"
+          notification="Tomorrow will be the last day of this pay period. Please make sure your timesheet is completed"
+        />
+        
+        {timesheetData.map((entry) => (
+          <TimesheetCard
+            key={entry.id}
+            date={entry.date}
+            inTime={entry.inTime}
+            outTime={entry.outTime}
+            totalHours={entry.totalHours}
+            onPress={() => console.log('Pressed:', entry.id)}
+          />
+        ))}
+      </ScrollView>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  scrollContainer: {
+    padding: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  greeting: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#333',
+  },
+  motivation: {
+    fontSize: 16,
+    marginBottom: 24,
+    color: '#666',
   },
 });
+
